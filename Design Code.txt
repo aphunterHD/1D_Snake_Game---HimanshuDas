@@ -1,0 +1,76 @@
+//One-dimensional snake game by Himanshu Das
+
+`timescale 1ns / 1ps
+
+module snake_1D(reset,clk,in,out,load);
+
+input reset,clk;
+input [7:0] in;
+output reg [7:0] out;
+
+reg [7:0] t,t1,t2,t3,t4,t5;
+wire s1,s2;
+reg [7:0] ot1,ot2;
+reg [7:0] h;
+reg [2:0] s;
+output reg load;
+
+assign s1=|(in&out);
+assign s2=~|(t&out);
+
+//calculating the new snake length and its position according to the seed position
+always@(in,s)
+begin
+
+if(in==8'h01) t=8'h80; else t=in>>1;
+if(in==8'h80) t1=8'h01; else t1=in<<1;
+if(t1==8'h80) t2=8'h01; else t2=t1<<1;
+if(t2==8'h80) t3=8'h01; else t3=t2<<1;
+if(t3==8'h80) t4=8'h01; else t4=t3<<1;
+if(t4==8'h80) t5=8'h01; else t5=t4<<1;
+
+case(s)
+3'b000:begin h=in|t; end
+3'b001:begin h=in|t|t1; end
+3'b010:begin h=in|t|t1|t2; end
+3'b011:begin h=in|t|t1|t2|t3; end
+3'b100:begin h=in|t|t1|t2|t3|t4; end
+3'b101:begin h=in|t|t1|t2|t3|t4|t5; end
+default:h=0;
+endcase
+
+end
+
+//condition flag for loading the updated snake length
+always@(negedge clk)
+begin
+if(s1&&s2) load=1; else load=0;
+end
+
+//displaying the snake length and updating internal states
+always@(posedge clk,posedge reset)
+begin
+
+if(reset)
+begin
+out<=8'b10000000;ot1=0;ot2=0;
+s<=3'b000;
+end
+
+else
+begin
+if(load) begin out=h; if(s==3'b101) s<=0; else s<=s+1; end else begin out<=out;s<=s; end
+
+out[7]<=out[0];
+out[6]<=out[7];
+out[5]<=out[6];
+out[4]<=out[5];
+out[3]<=out[4];
+out[2]<=out[3];
+out[1]<=out[2];
+out[0]<=out[1];
+end
+
+end
+
+endmodule

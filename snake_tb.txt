@@ -1,0 +1,27 @@
+//One-dimensional snake game testbench
+
+`timescale 1ns / 1ps
+
+module tb_snake();
+
+reg reset,clk;reg [7:0] seed;wire [7:0] snake;wire load;
+
+snake_1D dut (reset,clk,seed,snake,load);
+
+initial
+begin
+clk=0;
+forever #5 clk=~clk;
+end
+
+initial
+begin
+reset=1;
+#5 reset=0;
+#5 seed=8'b01000000;
+#100 seed=8'b00100000;
+#100 seed=8'b00000100;
+#100 seed=8'b10000000;
+#330 $finish;
+end
+endmodule
